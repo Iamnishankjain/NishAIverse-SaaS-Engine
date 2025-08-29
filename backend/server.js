@@ -16,7 +16,7 @@ app.get('/',(req,res,nexy)=>res.send('Server is live'));
 app.use(requireAuth());
 app.use('/api/ai',aiRouter);
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3000
 
 app.listen(PORT,()=>{
   console.log(`server is runing at http://localhost:${PORT}`);
