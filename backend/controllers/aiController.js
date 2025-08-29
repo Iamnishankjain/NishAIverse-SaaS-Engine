@@ -1,8 +1,10 @@
 import OpenAI from "openai";
 import sql from "../configs/db.js";
 import { clerkClient } from "@clerk/express";
+import FormData from "form-data";
 import axios from "axios";
 import {v2 as cloudinary} from 'cloudinary'
+
 
 const AI = new OpenAI({
     apiKey: process.env.GEMINI_API_KEY,
@@ -105,7 +107,7 @@ export const generateImage = async(req,res)=>{
     const formData = new FormData()
     formData.append('prompt', prompt)
 
-    const {data}=await axios.fetch('https://clipdrop-api.co/text-to-image/v1',formData,{
+    const {data}=await axios.post('https://clipdrop-api.co/text-to-image/v1',formData,{
       headers:{
         'x-api-key': process.env.CLIPDROP_API_KEY
       },
