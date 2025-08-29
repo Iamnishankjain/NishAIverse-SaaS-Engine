@@ -29,7 +29,7 @@ export const generateArticle = async(req,res)=>{
         temperature: 0.7,
         max_tokens:length,
     });
-    const content =response.choice[0].message.content
+    const content =response.choices[0].message.content
 
     await sql `INSERT INTO creations (user_id,prompt,content,type) VALUES (${userId},${prompt},${content},'article')`;
 

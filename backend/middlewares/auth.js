@@ -1,7 +1,7 @@
 import { clerkClient } from "@clerk/express";
 
 // check userId and hasPremium plan
-export const auth = async (req,resizeBy,next) =>{
+export const auth = async (req,res,next) =>{
   try{
     const {userId,has} = await req.auth();
     const hasPremiumPlan=await has({plan: 'premium'});
@@ -10,7 +10,7 @@ export const auth = async (req,resizeBy,next) =>{
     if(!hasPremiumPlan && user.privateMetadata.free_usage){
       req.free_usage=user.privateMetadata.free_usage;
     }else{
-      await clerkClient.user.updateUserMetadata(userId,{
+      await clerkClient.users.updateUserMetadata(userId,{
         privateMetadata:{
           free_usage:0
         }
