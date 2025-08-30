@@ -10,6 +10,6 @@ userRouter.get('/get-user-creations',auth,getUserCreations)
 
 userRouter.get('/get-published-creations',auth,getPublishedCreations);
 
-userRouter.get('/toggle-like-creation',auth,toggleLikeCreation);
+userRouter.post('/toggle-like-creation',auth,toggleLikeCreation);
 
 export default userRouter;
