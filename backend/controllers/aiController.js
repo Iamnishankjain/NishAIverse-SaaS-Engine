@@ -4,6 +4,8 @@ import { clerkClient } from "@clerk/express";
 import FormData from "form-data";
 import axios from "axios";
 import {v2 as cloudinary} from 'cloudinary'
+import fs from 'fs'
+import pdf from 'pdf-parse/lib/pdf-parse.js'
 
 
 const AI = new OpenAI({
@@ -190,6 +192,48 @@ export const removeImageObject = async(req,res)=>{
 
 
     res.json({success: true,content: imageUrl});
+
+  }catch(err){
+    res.json({success: false, message:err.message});
+  }
+}
+
+export const resumeReview = async(req,res)=>{
+  try{
+    const {userId} = req.auth();
+    const resume =req.file;
+    const plan=req.plan;
+
+    if(plan!=='premium'){
+      return res.json({status:false,message:"This feature is only available for premium subscriptions"});
+    }
+
+    if(resume.size>5*1024*1024){
+      return res.json({status:false,message:"Resume file size exceeds allowed size(5mb)."});
+    }
+
+    const dataBuffer = fs.readFileSync(resume.path);
+    const pdfData=await pdf(dataBuffer);
+
+    const prompt = `Review the following resume and provide constructive feedback on its strengths,weaknesses and areas for improvement. Resume Content:\n\n ${pdfData.text}`
+
+     const response = await AI.chat.completions.create({
+        model: "gemini-2.0-flash",
+        messages: [
+            {
+                role: "user",
+                content: prompt,
+            },
+        ],
+        temperature: 0.7,
+        max_tokens:1000,
+    });
+    const content =response.choices[0].message.content
+
+    await sql `INSERT INTO creations (user_id,prompt,content,type) VALUES (${userId},'Review Resume,${content},'resume-review')`;
+
+
+    res.json({success: true,content});
 
   }catch(err){
     res.json({success: false, message:err.message});
