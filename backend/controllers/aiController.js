@@ -215,7 +215,7 @@ export const resumeReview = async(req,res)=>{
     const dataBuffer = fs.readFileSync(resume.path);
     const pdfData=await pdf(dataBuffer);
 
-    const prompt = `Review the following resume and provide constructive feedback on its strengths,weaknesses and areas for improvement. Resume Content:\n\n ${pdfData.text}`
+    const prompt = `Review the following resume and provide constructive feedback on its ATS score, strengths,weaknesses and areas for improvement. Resume Content:\n\n ${pdfData.text}`
 
      const response = await AI.chat.completions.create({
         model: "gemini-2.0-flash",
@@ -226,11 +226,11 @@ export const resumeReview = async(req,res)=>{
             },
         ],
         temperature: 0.7,
-        max_tokens:1000,
+        max_tokens:2000,
     });
     const content =response.choices[0].message.content
 
-    await sql `INSERT INTO creations (user_id,prompt,content,type) VALUES (${userId},'Review Resume,${content},'resume-review')`;
+    await sql `INSERT INTO creations (user_id,prompt,content,type) VALUES (${userId},'Review Resume',${content},'resume-review')`;
 
 
     res.json({success: true,content});
