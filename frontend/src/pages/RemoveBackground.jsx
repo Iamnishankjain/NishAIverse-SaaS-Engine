@@ -1,12 +1,45 @@
 
 import { Eraser, Sparkles } from 'lucide-react';
 import React, { useState } from 'react'
+import axios from 'axios';
+import { useAuth } from '@clerk/clerk-react';
+import toast from 'react-hot-toast';
+
+axios.defaults.baseURL = import.meta.env.VITE_BASE_URL;
 
 const RemoveBackground = () => {
   const [input,setInput] = useState('');
+
+  const [loading, setLoading] = useState(false);
+  const [content, setContent] = useState("");
+
+  const { getToken } = useAuth();
   
   const onSubmitHandler = async (e) =>{
     e.preventDefault();
+    try {
+      setLoading(true);
+
+      const formData = new FormData();
+      formData.append('image',input)
+
+      const { data } = await axios.post(
+        "/api/ai/remove-image-background",
+        formData,
+        {
+          headers: { Authorization: `Bearer ${await getToken()}` },
+        }
+      );
+
+      if (data.success) {
+        setContent(data.content);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (err) {
+      toast.error(err.message);
+    }
+    setLoading(false);
   }
   return (
     <div className='h-full overflow-y-scroll p-6 flex items-start flex-wrap gap-4 text-slate-400'>
