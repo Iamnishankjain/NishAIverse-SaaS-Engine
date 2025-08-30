@@ -30,6 +30,22 @@ const Community = () => {
     setLoading(false);
   }
 
+  const imageLikeToggle = async (id)=>{
+    try{
+      const {data} =await axios.post('/api/user/toogle-like-creation',{id},{
+        headers : {Authorization: `Bearer ${await getToken()}`}
+      })
+      if(data.success){
+        toast.success(data.message);
+        await fetchCreations();
+      }else{
+        toast.error(data.message);
+      }
+    }catch(err){
+      toast.error(err.message);
+    }
+  }
+
   useEffect(()=>{
     if(user){
       fetchCreations();
